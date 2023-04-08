@@ -55,8 +55,7 @@ object SecretRecipeDecoder {
    * @return
    */
   def decodeString(str: String): String = {
-    // todo: implement me
-    "1 cup"
+    str.map((s: Char) => SecretRecipeDecoder.ENCODING.getOrElse(s.toString, s)).mkString(sep="")
   }
 
   /**
@@ -65,8 +64,8 @@ object SecretRecipeDecoder {
    * @return
    */
   def decodeIngredient(line: String): Ingredient = {
-    // todo: implement me
-    Ingredient("1 cup", "butter")
+    val information: Array[String] = decodeString((line)).split("#")
+    Ingredient(information(0), information(1))
   }
 
   /**
