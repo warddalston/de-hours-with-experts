@@ -1,6 +1,9 @@
 package com.labs1904
 
 import scala.collection.immutable.HashMap
+import scala.io.Source
+import java.io.File
+import java.io.PrintWriter
 
 /**
  * An ingredient has an amount and a description.
@@ -8,6 +11,7 @@ import scala.collection.immutable.HashMap
  * @param description For example, "butter"
  */
 case class Ingredient(amount: String, description: String)
+
 
 object SecretRecipeDecoder {
   val ENCODING: Map[String, String] = HashMap[String, String](
@@ -55,8 +59,7 @@ object SecretRecipeDecoder {
    * @return
    */
   def decodeString(str: String): String = {
-    // todo: implement me
-    "1 cup"
+    str.map((s: Char) => SecretRecipeDecoder.ENCODING.getOrElse(s.toString, s)).mkString(sep="")
   }
 
   /**
@@ -65,15 +68,36 @@ object SecretRecipeDecoder {
    * @return
    */
   def decodeIngredient(line: String): Ingredient = {
-    // todo: implement me
-    Ingredient("1 cup", "butter")
+    val information: Array[String] = decodeString((line)).split("#")
+    Ingredient(information(0), information(1))
   }
 
   /**
    * A program that decodes a secret recipe
    * @param args
    */
+  def linesFromPath(path: String): Array[String] = {
+    val source = Source.fromFile(path)
+    val array_encoded = source.getLines.toArray
+    source.close()
+    array_encoded
+  }
+
+  def linesToNewFile(path: String, lines: Array[String]): Unit = {
+    val file = new File(path)
+    val writer = new PrintWriter(file)
+    lines.map((l: String) => writer.write(l))
+    writer.close()
+  }
+
+  def ingredientToString(i: Ingredient): String = {
+    s"${i.amount} ${i.description}\n"
+  }
+
   def main(args: Array[String]): Unit = {
-    // TODO: implement me
+    var a: Array[String] = linesFromPath("src/main/resources/secret_recipe.txt")
+    a = a.map((s: String) => ingredientToString(decodeIngredient(s)))
+    a(a.size-1) = a.last.replace("\n", "")
+    linesToNewFile("src/main/resources/decoded_recipe.txt", a)
   }
 }
